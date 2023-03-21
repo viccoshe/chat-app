@@ -1,0 +1,25 @@
+[debug] [2023-03-21T18:31:59.604Z] ----------------------------------------------------------------------
+[debug] [2023-03-21T18:31:59.608Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Виктория\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2023-03-21T18:31:59.609Z] CLI Version:   11.24.1
+[debug] [2023-03-21T18:31:59.609Z] Platform:      win32
+[debug] [2023-03-21T18:31:59.609Z] Node Version:  v16.17.1
+[debug] [2023-03-21T18:31:59.611Z] Time:          Tue Mar 21 2023 21:31:59 GMT+0300 (Москва, стандартное время)
+[debug] [2023-03-21T18:31:59.612Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-03-21T18:31:59.629Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-03-21T18:31:59.630Z] > authorizing via signed-in user (kschvh@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\victoria\файлы\I\мои проекты\npxchat\superchat
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
