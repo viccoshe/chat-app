@@ -1,16 +1,13 @@
 import './App.css';
 import 'firebase/firestore';
-import { getFirestore, Timestamp  } from "firebase/firestore";
+import { getFirestore, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
 import 'firebase/auth';
 import 'firebase/analytics';
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import { useAuthState} from "react-firebase-hooks/auth";
-import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { doc, setDoc,getDoc, updateDoc  } from "firebase/firestore"; 
-import {useState} from "react";
-import { useContext } from 'react';
-
+import { query, orderBy, addDoc  } from "firebase/firestore"; 
+import {useState, useEffect, useRef} from "react";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCs-rfElxXlQhym7AJnrPs79fTWaNFXY-Y",
@@ -26,45 +23,42 @@ const auth = getAuth();
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-
-let user;
 function App() {
+  const [user] = useAuthState(auth);
 
-user = onAuthStateChanged(auth, (googleUser) => {
-    if (googleUser) {
-      user = googleUser;
-    } else {
-      console.error('user is signed out')
-      user = null;
-    }
-  });
-
+  onAuthStateChanged(auth, (googleUser) => {
+  if (googleUser) {
+    
+    return googleUser;
+  } else {
+    console.error('user is signed out');
+   
+    return googleUser;
+  }
+});
 
   return (
     <div className="App">
       <header>
-      
+      <h1>⚛️🔥💬</h1>
       </header>
-
       <section>
-        {user ? <ChatRoom /> : <SignIn />}
+        {user ? <ChatRoom user={user} /> : <SignIn />}
       </section>
     </div>
   );
 }
 
 function SignIn() { 
-  const signInWithGoogle = () => {
-    signInWithPopup(auth, provider);
-    console.log(user);
-  }
+  const signInWithGoogle = async () => {
+    await signInWithPopup(auth, provider);
+    }
 
   return (
     <>
       <h1>Sign in</h1>
       <button onClick={signInWithGoogle}>Sign in with Google</button>    
     </>
-
   )
 }
 
@@ -74,57 +68,52 @@ function SignOut() {
   )
 }
 
-function ChatRoom() {
-  //const query = messagesRef.orderBy('createdAt').limit(25);
-  //const [messages] = useCollectionData(query, {idField: 'id'});
+function ChatRoom(props) {
   const [formValue, setFormValue] = useState('');
+  const [messages, setMessages] = useState([]);
+  const {user} = props.user;
+  const scroll = useRef();  
+  const {uid, photoURL} = auth.currentUser;
 
-  const uid = user.uid;
-  const photoURL = user.photoURL;
-
-  
-
-  const getMessages = async() => {
-    const messagesRef = doc(db, "messages", user.uid.toString());
-    console.log(messagesRef);
-    let messages = {};
-   
-    const msgSnap = await getDoc(messagesRef);
-    if (msgSnap.exists()) {
-      console.log("Document data:", msgSnap.data());
-      messages = msgSnap.data();
-      console.log(messages)
-    } else {
-      console.log("No such document!"); 
-    }
-  };
-getMessages();
-// console.log(messages);
-
+  useEffect (() => {
+    const q = query(collection(db, 'messages'), orderBy('createdAt'))
+    const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
+      let messages = [];
+      QuerySnapshot.forEach((doc) => {
+        messages.push({ ...doc.data(), id: doc.id });
+      });
+      setMessages(messages);
+    });
+    return () =>unsubscribe();
+  }, [])
 
   const sendMessage = async(e) => {
     e.preventDefault();
-    await setDoc(doc(db, "messages", uid.toString()), {
+    if( formValue === ''){
+      alert('please, enter a valid message')
+      return
+    }
+    await addDoc(collection(db, "messages"), {
       text: formValue,
-      createdAt: Timestamp.fromDate(new Date()),
+      createdAt: serverTimestamp(),
       uid,
       photoURL
     });
-    setFormValue('')
+    setFormValue('');
+    scroll.current.scrollIntoView({behavior: 'smooth'})
   }
 
   return (
     <>
-    <h1>Chat</h1>
-      {/* {messages 
-      ? messages.map(msg => <ChatMessage key={msg.id} message={msg} />)
-    : null} */}
-    
-    <form onSubmit={sendMessage}>
-      <input placeholder="type ur msg" value={formValue} onChange={(e) => setFormValue(e.target.value)} />
-      <button type="submit">Send a message</button>
-    </form>
-    
+      <h1>Chat</h1>
+        {messages ? messages.map(msg => 
+          <ChatMessage key={msg.id} message={msg} />)
+        : null}
+      
+      <form onSubmit={sendMessage}>
+        <input placeholder="say something nice" value={formValue} onChange={(e) => setFormValue(e.target.value)} />
+        <button type="submit">🕊️</button>
+      </form>
     </>
   )
 }
@@ -135,7 +124,7 @@ function ChatMessage(props) {
 
   return (
     <div className={`message ${messageClass}`}>
-      {/* <img src={photoURl} /> */}
+      <img src={props.message.photoURL || 'https://png.pngitem.com/pimgs/s/22-223978_transparent-no-avatar-png-pyrenees-png-download.png'} />
       <p>{text}</p>
 
     </div>
